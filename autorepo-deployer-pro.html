@@ -552,8 +552,8 @@
       if (!/^(?!-)(?!.*-$)[A-Za-z0-9-]{1,39}$/.test(owner)) {
         throw new Error("Owner must be 1-39 letters/numbers/hyphens and cannot start or end with a hyphen.");
       }
-      if (!/^(?![.-])[A-Za-z0-9._-]+$/.test(repoName) || repoName.endsWith(".") || repoName.endsWith("-")) {
-        throw new Error("Repository name can include letters, numbers, dots, underscores, and hyphens, but cannot start/end with dots or hyphens.");
+      if (!/^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9])?$/.test(repoName)) {
+        throw new Error("Repository name must be 1-100 chars, use letters/numbers/dots/underscores/hyphens, and start/end with a letter or number.");
       }
       if (!githubToken) {
         throw new Error("GitHub token is required.");
