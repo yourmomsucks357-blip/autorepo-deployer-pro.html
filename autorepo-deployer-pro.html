@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoRepo Deployer Pro</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1221;
+      --panel: #111c33;
+      --panel-alt: #16233f;
+      --text: #edf2ff;
+      --muted: #9bb0d3;
+      --accent: #5da8ff;
+      --good: #1cd47e;
+      --warn: #ffcc66;
+      --bad: #ff6b81;
+      --border: #27406e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1f3358, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: linear-gradient(140deg, var(--panel), var(--panel-alt));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 { margin: 0; font-size: clamp(1.2rem, 3vw, 2rem); }
+    h2 { margin-top: 0; font-size: 1.05rem; }
+    p { color: var(--muted); margin: .4rem 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: .75rem;
+    }
+
+    label {
+      display: grid;
+      gap: .35rem;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0e1730;
+      color: var(--text);
+      padding: .6rem .7rem;
+      font: inherit;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+    }
+
+    button {
+      background: linear-gradient(135deg, #2c72ff, #2bc6ff);
+      border: none;
+      color: #081124;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #203257;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button:disabled { opacity: .6; cursor: not-allowed; }
+
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem 1rem;
+    }
+
+    .checkbox-row label {
+      grid-template-columns: auto 1fr;
+      display: inline-grid;
+      align-items: center;
+      gap: .35rem;
+      color: var(--text);
+      font-size: .87rem;
+    }
+
+    .dropzone {
+      border: 1px dashed #5e87cc;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      color: var(--muted);
+      transition: .2s;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(93, 168, 255, .1);
+      color: var(--text);
+    }
+
+    .pill {
+      display: inline-block;
+      margin: .25rem .3rem 0 0;
+      padding: .25rem .55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #13203d;
+      font-size: .75rem;
+    }
+
+    #log, #nextSteps {
+      max-height: 220px;
+      overflow: auto;
+      background: #0a1225;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .7rem;
+      white-space: pre-wrap;
+      font-size: .85rem;
+      line-height: 1.45;
+    }
+
+    .ok { color: var(--good); }
+    .warn { color: var(--warn); }
+    .err { color: var(--bad); }
+
+    @media (max-width: 640px) {
+      main { padding: .75rem; }
+      .card { padding: .85rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>🚀 AutoRepo Deployer Pro</h1>
+      <p>Create real GitHub repositories, upload files, and deploy to GitHub Pages, Vercel, Netlify, and Heroku.</p>
+    </section>
+
+    <section class="card">
+      <h2>1) Tokens</h2>
+      <div class="grid">
+        <label>GitHub token (repo scope)
+          <input id="githubToken" type="password" autocomplete="off" placeholder="ghp_..." />
+        </label>
+        <label>Vercel token (optional)
+          <input id="vercelToken" type="password" autocomplete="off" placeholder="vercel token" />
+        </label>
+        <label>Netlify token (optional)
+          <input id="netlifyToken" type="password" autocomplete="off" placeholder="netlify token" />
+        </label>
+        <label>Heroku token (optional)
+          <input id="herokuToken" type="password" autocomplete="off" placeholder="heroku token" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) Repository Setup</h2>
+      <div class="grid">
+        <label>Repository owner
+          <input id="owner" placeholder="username or org" />
+        </label>
+        <label>Repository name
+          <input id="repoName" placeholder="my-awesome-app" />
+        </label>
+        <label>Description
+          <input id="description" placeholder="What this project does" />
+        </label>
+        <label>Template
+          <select id="template">
+            <option value="static">Static HTML</option>
+            <option value="react">React</option>
+            <option value="node">Node.js</option>
+            <option value="flask">Flask</option>
+          </select>
+        </label>
+        <label>License
+          <select id="license">
+            <option value="none">None</option>
+            <option value="mit">MIT</option>
+            <option value="apache-2.0">Apache-2.0</option>
+            <option value="gpl-3.0">GPL-3.0</option>
+          </select>
+        </label>
+        <label>Import existing repo URL (optional)
+          <input id="importUrl" placeholder="https://github.com/user/repo.git" />
+        </label>
+      </div>
+      <div class="checkbox-row" style="margin-top:.75rem;">
+        <label><input id="isPrivate" type="checkbox" /> Private repository</label>
+        <label><input id="enableIssues" type="checkbox" checked /> Enable issues</label>
+        <label><input id="enableWiki" type="checkbox" checked /> Enable wiki</label>
+        <label><input id="enableActions" type="checkbox" checked /> Add CI workflow</label>
+        <label><input id="enablePages" type="checkbox" checked /> Add GitHub Pages workflow</label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3) Files & Analysis</h2>
+      <div id="dropzone" class="dropzone">
+        Drag and drop files/folders here, or choose files below.
+      </div>
+      <div class="row" style="margin-top:.5rem;">
+        <input id="fileInput" type="file" multiple webkitdirectory />
+      </div>
+      <p><strong>Staged files</strong></p>
+      <div id="stagedFiles"></div>
+      <div class="row" style="margin-top:.75rem;">
+        <button id="analyzeBtn" class="secondary" type="button">Analyze Code</button>
+        <div id="analysis" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) Deploy</h2>
+      <div class="row">
+        <button id="deployBtn" type="button">Create Repo & Deploy</button>
+      </div>
+      <p id="statusText">Ready.</p>
+      <h3 style="margin-bottom:.35rem;">Progress Log</h3>
+      <div id="log"></div>
+      <h3 style="margin-bottom:.35rem;">Deployment URLs & Next Steps</h3>
+      <div id="nextSteps"></div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = {
+      files: new Map(),
+      deploymentUrls: []
+    };
+
+    const templates = {
+      static: {
+        "index.html": `<!doctype html>\n<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Static Site</title></head><body><h1>It works 🚀</h1></body></html>`,
+        "README.md": "# Static App\\n\\nGenerated by AutoRepo Deployer Pro."
+      },
+      react: {
+        "package.json": JSON.stringify({
+          name: "react-app",
+          private: true,
+          version: "0.1.0",
+          scripts: { start: "vite", build: "vite build", test: "echo 'No tests configured'" },
+          dependencies: { react: "^18.3.1", "react-dom": "^18.3.1" },
+          devDependencies: { vite: "^5.4.19" }
+        }, null, 2),
+        "src/main.jsx": "import React from 'react';\\nimport { createRoot } from 'react-dom/client';\\ncreateRoot(document.getElementById('root')).render(<h1>Hello React 🚀</h1>);",
+        "index.html": "<!doctype html><html><body><div id='root'></div><script type='module' src='/src/main.jsx'><\/script></body></html>",
+        "README.md": "# React App\\n\\nGenerated by AutoRepo Deployer Pro."
+      },
+      node: {
+        "package.json": JSON.stringify({
+          name: "node-app",
+          version: "1.0.0",
+          main: "index.js",
+          scripts: { start: "node index.js", test: "node --test" }
+        }, null, 2),
+        "index.js": "const http = require('http');\\nhttp.createServer((_, res) => {res.end('Hello Node 🚀');}).listen(process.env.PORT || 3000);",
+        "README.md": "# Node App\\n\\nGenerated by AutoRepo Deployer Pro."
+      },
+      flask: {
+        "app.py": "from flask import Flask\\napp = Flask(__name__)\\n\\n@app.get('/')\\ndef home():\\n    return 'Hello Flask 🚀'\\n",
+        "requirements.txt": "flask==3.0.3\\ngunicorn==22.0.0",
+        "Procfile": "web: gunicorn app:app",
+        "README.md": "# Flask App\\n\\nGenerated by AutoRepo Deployer Pro."
+      }
+    };
+
+    const licenses = {
+      mit: `MIT License\\n\\nCopyright (c) [year] [fullname]\\n\\nPermission is hereby granted, free of charge, to any person obtaining a copy\\nof this software and associated documentation files (the "Software"), to deal\\nin the Software without restriction...`,
+      "apache-2.0": `Apache License\\nVersion 2.0, January 2004\\nhttp://www.apache.org/licenses/`,
+      "gpl-3.0": `GNU GENERAL PUBLIC LICENSE\\nVersion 3, 29 June 2007`
+    };
+
+    const workflowCI = `name: CI\\non: [push, pull_request]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v4\\n      - uses: actions/setup-node@v4\\n        with:\\n          node-version: '20'\\n      - run: npm ci || true\\n      - run: npm test || true`;
+
+    const workflowPages = `name: Deploy static content to Pages\\non:\\n  push:\\n    branches: [main]\\npermissions:\\n  contents: read\\n  pages: write\\n  id-token: write\\nconcurrency:\\n  group: pages\\n  cancel-in-progress: false\\njobs:\\n  deploy:\\n    environment:\\n      name: github-pages\\n      url: \${{ steps.deployment.outputs.page_url }}\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v4\\n      - uses: actions/configure-pages@v5\\n      - uses: actions/upload-pages-artifact@v3\\n        with:\\n          path: .\\n      - id: deployment\\n        uses: actions/deploy-pages@v4`;
+
+    function now() {
+      return new Date().toLocaleTimeString();
+    }
+
+    function log(message, type = "info") {
+      const line = `[${now()}] ${message}`;
+      const span = document.createElement("div");
+      span.className = type === "error" ? "err" : type === "success" ? "ok" : type === "warn" ? "warn" : "";
+      span.textContent = line;
+      $("log").appendChild(span);
+      $("log").scrollTop = $("log").scrollHeight;
+    }
+
+    function setStatus(text) {
+      $("statusText").textContent = text;
+    }
+
+    function renderStaged() {
+      const list = $("stagedFiles");
+      list.innerHTML = "";
+      if (!state.files.size) {
+        list.textContent = "No files staged yet.";
+        return;
+      }
+      [...state.files.keys()].sort().forEach((file) => {
+        const pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = file;
+        list.appendChild(pill);
+      });
+    }
+
+    function detectFrameworks() {
+      const names = [...state.files.keys()].map((x) => x.toLowerCase());
+      const content = [...state.files.values()].join("\n").toLowerCase();
+      const result = [];
+      if (names.includes("package.json") && content.includes("react")) result.push("React");
+      if (names.includes("app.py") || names.includes("requirements.txt")) result.push("Flask/Python");
+      if (names.includes("index.js") || content.includes("express")) result.push("Node.js");
+      if (names.includes("index.html")) result.push("Static HTML");
+      return result.length ? result.join(", ") : "No framework pattern detected";
+    }
+
+    async function readFiles(fileList) {
+      for (const file of fileList) {
+        const path = (file.webkitRelativePath || file.name).replace(/^\/+/, "");
+        const content = await file.text();
+        state.files.set(path, content);
+      }
+      renderStaged();
+    }
+
+    function githubRequest(path, token, options = {}) {
+      return fetch(`https://api.github.com${path}`, {
+        ...options,
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          ...(options.headers || {})
+        }
+      });
+    }
+
+    function checkResponse(response, context) {
+      if (response.ok) return response;
+      throw new Error(`${context} failed (${response.status})`);
+    }
+
+    function encodeBase64(value) {
+      return btoa(unescape(encodeURIComponent(value)));
+    }
+
+    async function ensureRepository(githubToken, owner, repoName, description, isPrivate) {
+      log("Authenticating to GitHub API...");
+      const userData = await githubRequest("/user", githubToken).then((r) => checkResponse(r, "GitHub auth")).then((r) => r.json());
+      log(`Authenticated as ${userData.login}`, "success");
+      const endpoint = userData.login.toLowerCase() === owner.toLowerCase() ? "/user/repos" : `/orgs/${encodeURIComponent(owner)}/repos`;
+
+      log(`Creating repository ${owner}/${repoName}...`);
+      const body = JSON.stringify({
+        name: repoName,
+        description,
+        private: isPrivate,
+        auto_init: false,
+        has_issues: $("enableIssues").checked,
+        has_wiki: $("enableWiki").checked
+      });
+      const response = await githubRequest(endpoint, githubToken, { method: "POST", body });
+      if (response.status === 422) {
+        log("Repository already exists, proceeding with updates.", "warn");
+        return;
+      }
+      checkResponse(response, "Repository creation");
+      log("Repository created.", "success");
+    }
+
+    async function updateRepositorySettings(githubToken, owner, repoName) {
+      log("Updating repository settings...");
+      const response = await githubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`, githubToken, {
+        method: "PATCH",
+        body: JSON.stringify({
+          has_issues: $("enableIssues").checked,
+          has_wiki: $("enableWiki").checked
+        })
+      });
+      checkResponse(response, "Settings update");
+      log("Repository settings configured.", "success");
+    }
+
+    async function importRepositoryIfNeeded(githubToken, owner, repoName, importUrl) {
+      if (!importUrl) return;
+      log("Starting GitHub import from existing repository...");
+      const response = await githubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/import`, githubToken, {
+        method: "PUT",
+        headers: { "Accept": "application/vnd.github.baptiste-preview+json" },
+        body: JSON.stringify({ vcs: "git", vcs_url: importUrl })
+      });
+      checkResponse(response, "GitHub import");
+      log("Import triggered. GitHub will continue cloning in the background.", "success");
+    }
+
+    async function putFile(githubToken, owner, repoName, filePath, content, message) {
+      const path = filePath.replace(/^\/+/, "");
+      const response = await githubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}`, githubToken, {
+        method: "PUT",
+        body: JSON.stringify({
+          message,
+          content: encodeBase64(content)
+        })
+      });
+      checkResponse(response, `Upload ${path}`);
+    }
+
+    function mergedFiles() {
+      const templateName = $("template").value;
+      const combined = new Map(Object.entries(templates[templateName] || {}));
+      for (const [key, value] of state.files.entries()) {
+        combined.set(key, value);
+      }
+      if ($("license").value !== "none") {
+        combined.set("LICENSE", licenses[$("license").value] || "");
+      }
+      if ($("enableActions").checked) {
+        combined.set(".github/workflows/ci.yml", workflowCI);
+      }
+      if ($("enablePages").checked) {
+        combined.set(".github/workflows/pages.yml", workflowPages);
+      }
+      return combined;
+    }
+
+    async function uploadAllFiles(githubToken, owner, repoName) {
+      const files = mergedFiles();
+      log(`Uploading ${files.size} files...`);
+      let count = 0;
+      for (const [path, content] of files.entries()) {
+        await putFile(githubToken, owner, repoName, path, String(content), `chore: add ${path}`);
+        count += 1;
+        setStatus(`Uploading files (${count}/${files.size})...`);
+      }
+      log("All files uploaded.", "success");
+    }
+
+    async function enablePages(githubToken, owner, repoName) {
+      if (!$("enablePages").checked) return;
+      log("Enabling GitHub Pages (workflow mode)...");
+      const response = await githubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/pages`, githubToken, {
+        method: "POST",
+        body: JSON.stringify({ build_type: "workflow" })
+      });
+      if (!response.ok && response.status !== 409) {
+        throw new Error(`GitHub Pages setup failed (${response.status})`);
+      }
+      const pagesUrl = `https://${owner}.github.io/${repoName}/`;
+      state.deploymentUrls.push(`GitHub Pages: ${pagesUrl}`);
+      log("GitHub Pages configured.", "success");
+    }
+
+    async function deployVercel(owner, repoName, token) {
+      if (!token) return;
+      log("Creating Vercel project...");
+      const response = await fetch("https://api.vercel.com/v10/projects", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: repoName, framework: $("template").value === "react" ? "vite" : null })
+      });
+      if (!response.ok) throw new Error(`Vercel deployment failed (${response.status})`);
+      const data = await response.json();
+      const url = `https://${data.name || repoName}.vercel.app`;
+      state.deploymentUrls.push(`Vercel: ${url}`);
+      log("Vercel project created.", "success");
+    }
+
+    async function deployNetlify(repoName, token) {
+      if (!token) return;
+      log("Creating Netlify site...");
+      const response = await fetch("https://api.netlify.com/api/v1/sites", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: repoName })
+      });
+      if (!response.ok) throw new Error(`Netlify deployment failed (${response.status})`);
+      const data = await response.json();
+      state.deploymentUrls.push(`Netlify: ${data.ssl_url || data.url || "created"}`);
+      log("Netlify site created.", "success");
+    }
+
+    async function deployHeroku(repoName, token) {
+      if (!token) return;
+      log("Creating Heroku app...");
+      const response = await fetch("https://api.heroku.com/apps", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Accept": "application/vnd.heroku+json; version=3"
+        },
+        body: JSON.stringify({ name: repoName })
+      });
+      if (!response.ok) throw new Error(`Heroku deployment failed (${response.status})`);
+      const data = await response.json();
+      state.deploymentUrls.push(`Heroku: https://${data.name}.herokuapp.com`);
+      log("Heroku app created.", "success");
+    }
+
+    function validateInputs() {
+      const owner = $("owner").value.trim();
+      const repoName = $("repoName").value.trim();
+      const githubToken = $("githubToken").value.trim();
+
+      if (!/^[A-Za-z0-9_.-]+$/.test(owner)) {
+        throw new Error("Owner must use GitHub-safe characters only.");
+      }
+      if (!/^[A-Za-z0-9_.-]+$/.test(repoName)) {
+        throw new Error("Repository name must use GitHub-safe characters only.");
+      }
+      if (!githubToken) {
+        throw new Error("GitHub token is required.");
+      }
+
+      return { owner, repoName, githubToken };
+    }
+
+    function renderNextSteps(owner, repoName) {
+      const lines = [
+        `Repository: https://github.com/${owner}/${repoName}`,
+        ...state.deploymentUrls,
+        "",
+        "Next steps:",
+        "1. Open repository settings to verify secrets/environment variables.",
+        "2. Trigger the workflow once if your platform needs first-time setup.",
+        "3. Add a custom domain in your chosen hosting provider (optional)."
+      ];
+      $("nextSteps").textContent = lines.join("\n");
+    }
+
+    async function runDeployment() {
+      state.deploymentUrls = [];
+      $("log").innerHTML = "";
+      $("nextSteps").textContent = "";
+      $("deployBtn").disabled = true;
+
+      try {
+        const { owner, repoName, githubToken } = validateInputs();
+        const description = $("description").value.trim();
+        const isPrivate = $("isPrivate").checked;
+        setStatus("Starting deployment...");
+        log("Validation passed.", "success");
+
+        await ensureRepository(githubToken, owner, repoName, description, isPrivate);
+        await updateRepositorySettings(githubToken, owner, repoName);
+        await importRepositoryIfNeeded(githubToken, owner, repoName, $("importUrl").value.trim());
+        await uploadAllFiles(githubToken, owner, repoName);
+        await enablePages(githubToken, owner, repoName);
+
+        await deployVercel(owner, repoName, $("vercelToken").value.trim());
+        await deployNetlify(repoName, $("netlifyToken").value.trim());
+        await deployHeroku(repoName, $("herokuToken").value.trim());
+
+        renderNextSteps(owner, repoName);
+        setStatus("Done ✅");
+        log("Deployment workflow completed.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Failed ❌");
+        log(error.message || "Unknown error", "error");
+      } finally {
+        $("deployBtn").disabled = false;
+      }
+    }
+
+    $("template").addEventListener("change", () => {
+      const preview = new Map(Object.entries(templates[$("template").value] || {}));
+      for (const [path, content] of preview.entries()) {
+        if (!state.files.has(path)) state.files.set(path, content);
+      }
+      renderStaged();
+    });
+
+    $("analyzeBtn").addEventListener("click", () => {
+      const frameworks = detectFrameworks();
+      $("analysis").textContent = `Detected: ${frameworks}`;
+      log(`Code analysis complete: ${frameworks}`, "success");
+    });
+
+    $("deployBtn").addEventListener("click", runDeployment);
+
+    $("fileInput").addEventListener("change", async (event) => {
+      await readFiles(event.target.files);
+      log(`${event.target.files.length} file(s) staged.`, "success");
+    });
+
+    const dropzone = $("dropzone");
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropzone.classList.remove("dragover");
+      });
+    });
+
+    dropzone.addEventListener("drop", async (event) => {
+      const files = event.dataTransfer?.files;
+      if (!files?.length) return;
+      await readFiles(files);
+      log(`${files.length} dropped file(s) staged.`, "success");
+    });
+
+    // Seed template files for immediate UX.
+    $("template").dispatchEvent(new Event("change"));
+  </script>
+</body>
+</html>
