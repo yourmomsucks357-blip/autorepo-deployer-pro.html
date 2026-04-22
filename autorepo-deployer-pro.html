@@ -231,7 +231,9 @@
         Drag and drop files/folders here, or choose files below.
       </div>
       <div class="row" style="margin-top:.5rem;">
-        <input id="fileInput" type="file" multiple webkitdirectory />
+        <label for="fileInput" style="width:100%;">Upload files/folders
+          <input id="fileInput" type="file" multiple webkitdirectory />
+        </label>
       </div>
       <p><strong>Staged files</strong></p>
       <div id="stagedFiles"></div>
@@ -377,7 +379,10 @@
     }
 
     function encodeBase64(value) {
-      return btoa(unescape(encodeURIComponent(value)));
+      const bytes = new TextEncoder().encode(value);
+      let binary = "";
+      for (const byte of bytes) binary += String.fromCharCode(byte);
+      return btoa(binary);
     }
 
     async function ensureRepository(githubToken, owner, repoName, description, isPrivate) {
@@ -544,10 +549,10 @@
       const repoName = $("repoName").value.trim();
       const githubToken = $("githubToken").value.trim();
 
-      if (!/^[A-Za-z0-9_.-]+$/.test(owner)) {
+      if (!/^(?!-)(?!.*--)[A-Za-z0-9-]{1,39}$/.test(owner)) {
         throw new Error("Owner must use GitHub-safe characters only.");
       }
-      if (!/^[A-Za-z0-9_.-]+$/.test(repoName)) {
+      if (!/^(?![.-])[A-Za-z0-9._-]+(?<![.-])$/.test(repoName)) {
         throw new Error("Repository name must use GitHub-safe characters only.");
       }
       if (!githubToken) {
