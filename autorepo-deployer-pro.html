@@ -232,7 +232,7 @@
       </div>
       <div class="row" style="margin-top:.5rem;">
         <label for="fileInput" style="width:100%;">Upload files/folders
-          <input id="fileInput" type="file" multiple webkitdirectory />
+          <input id="fileInput" type="file" multiple webkitdirectory aria-label="Upload files and folders" />
         </label>
       </div>
       <p><strong>Staged files</strong></p>
@@ -549,10 +549,10 @@
       const repoName = $("repoName").value.trim();
       const githubToken = $("githubToken").value.trim();
 
-      if (!/^(?!-)(?!.*--)[A-Za-z0-9-]{1,39}$/.test(owner)) {
+      if (!/^(?!-)[A-Za-z0-9-]{1,39}$/.test(owner)) {
         throw new Error("Owner must use GitHub-safe characters only.");
       }
-      if (!/^(?![.-])[A-Za-z0-9._-]+(?<![.-])$/.test(repoName)) {
+      if (!/^(?![.-])[A-Za-z0-9._-]+$/.test(repoName) || repoName.endsWith(".") || repoName.endsWith("-")) {
         throw new Error("Repository name must use GitHub-safe characters only.");
       }
       if (!githubToken) {
