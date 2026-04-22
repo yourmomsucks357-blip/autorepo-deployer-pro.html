@@ -486,7 +486,10 @@
       if (!response.ok && response.status !== 409) {
         throw new Error(`GitHub Pages setup failed (${response.status})`);
       }
-      const pagesUrl = `https://${owner}.github.io/${repoName}/`;
+      const isUserOrOrgPagesRepo = repoName.toLowerCase() === `${owner.toLowerCase()}.github.io`;
+      const pagesUrl = isUserOrOrgPagesRepo
+        ? `https://${owner}.github.io/`
+        : `https://${owner}.github.io/${repoName}/`;
       state.deploymentUrls.push(`GitHub Pages: ${pagesUrl}`);
       log("GitHub Pages configured.", "success");
     }
