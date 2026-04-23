@@ -1236,7 +1236,7 @@ jobs:
                 for (const [filename, content] of Object.entries(files)) {
                     let fileContent = content;
                     if (content instanceof File) {
-                        fileContent = await file.text();
+                        fileContent = await content.text();
                     }
                     
                     const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));

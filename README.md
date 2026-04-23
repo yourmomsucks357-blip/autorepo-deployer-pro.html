@@ -4,7 +4,7 @@ Static deployment-ready clone of the AutoRepo Deployer Pro HTML app.
 
 ## Run locally
 
-Open `/home/runner/work/autorepo-deployer-pro.html/autorepo-deployer-pro.html/index.html` in a browser.
+Open `index.html` in a browser.
 
 ## Deploy
 
