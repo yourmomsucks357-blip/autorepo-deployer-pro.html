@@ -574,7 +574,7 @@
       const githubToken = $("githubToken").value.trim();
 
       if (!/^(?!-)(?!.*-$)[A-Za-z0-9-]{1,39}$/.test(owner)) {
-        throw new Error("Owner must be 1-39 letters/numbers/hyphens and cannot start or end with a hyphen.");
+        throw new Error("Owner must be 1-39 alphanumeric characters (A-Z, a-z, 0-9) or hyphens, and cannot start or end with a hyphen.");
       }
       if (!/^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9])?$/.test(repoName) || /\.\./.test(repoName)) {
         throw new Error("Repository name must be 1-100 chars, use letters/numbers/dots/underscores/hyphens, and start/end with a letter or number.");
