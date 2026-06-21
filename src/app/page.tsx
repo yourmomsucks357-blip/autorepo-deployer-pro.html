@@ -389,6 +389,58 @@ export default function HomePage() {
         </Container>
       </Section>
 
+      {/* Snap Before You Scrap promo */}
+      <Section muted>
+        <Container>
+          <div className="overflow-hidden rounded-2xl border border-line bg-white">
+            <div className="grid items-center gap-0 lg:grid-cols-2">
+              <div className="p-8 sm:p-12">
+                <Eyebrow>Snap before you scrap</Eyebrow>
+                <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+                  Don&apos;t scrap it until you&apos;ve checked
+                </h2>
+                <p className="mt-4 text-lg leading-relaxed text-muted">
+                  Snap a few photos from your phone and get an instant read on
+                  whether a vehicle is worth more as parts, export, rebuild,
+                  salvage, or wholesale than scrap — then send it to the right
+                  buyers.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button href="/snap">Try Snap Before You Scrap</Button>
+                </div>
+              </div>
+              <div className="bg-ink p-8 sm:p-12">
+                <div className="space-y-4">
+                  {[
+                    { lane: "Parts buyers", score: 78 },
+                    { lane: "Export buyers", score: 64 },
+                    { lane: "Salvage buyers", score: 52 },
+                    { lane: "Scrap buyers", score: 31 },
+                  ].map((row) => (
+                    <div key={row.lane}>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white/80">{row.lane}</span>
+                        <span className="font-semibold text-white">{row.score}%</span>
+                      </div>
+                      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className={`h-full rounded-full ${row.lane === "Scrap buyers" ? "bg-white/40" : "bg-brand-600"}`}
+                          style={{ width: `${row.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <p className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-white/70">
+                    <span className="font-semibold text-white/90">Verdict:</span>{" "}
+                    Worth more to parts buyers than scrap.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
       <CtaBand
         title="Ready to move a unit or join the network?"
         body="Sellers get matched to the right buyers. Buyers get opportunities that fit their lane. Companies get faster, smarter disposition."

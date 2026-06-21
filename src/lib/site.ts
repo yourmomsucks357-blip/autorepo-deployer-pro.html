@@ -35,6 +35,7 @@ export const footerNav: { heading: string; links: NavLink[] }[] = [
     heading: "Sellers",
     links: [
       { label: "Sell a Vehicle", href: "/sell" },
+      { label: "Snap Before You Scrap", href: "/snap" },
       { label: "Insurance / Total Loss", href: "/insurance" },
       { label: "Contact", href: "/contact" },
     ],

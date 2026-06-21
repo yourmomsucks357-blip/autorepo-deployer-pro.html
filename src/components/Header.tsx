@@ -92,6 +92,9 @@ export function Header() {
               onClick={() => setOpen(false)}
             >
               <Button href="/sell">Sell a Vehicle</Button>
+              <Button href="/snap" variant="secondary">
+                Snap Before You Scrap
+              </Button>
               <Button href="/buyers" variant="secondary">
                 Join the Buyer Network
               </Button>
