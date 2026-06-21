@@ -112,6 +112,7 @@ export default function BuyersPage() {
 
           <LeadForm
             formName="Join the Buyer Network"
+            leadType="buyer"
             groups={groups}
             submitLabel="Join the Network"
             successTitle="Welcome to the buyer network."

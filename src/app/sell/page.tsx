@@ -105,6 +105,7 @@ export default function SellPage() {
 
           <LeadForm
             formName="Sell a Vehicle"
+            leadType="sell"
             groups={groups}
             submitLabel="Submit Vehicle"
             successTitle="Your vehicle opportunity is in."

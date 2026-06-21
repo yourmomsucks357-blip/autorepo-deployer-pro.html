@@ -49,6 +49,28 @@ Open [http://localhost:3000](http://localhost:3000).
 SEO: each page sets unique title/description/canonical and Open Graph tags;
 `/sitemap.xml` and `/robots.txt` are generated automatically.
 
+## Lead capture (backend)
+
+Every form — Sell, Buyer Network, Insurance, Contact, and the Snap flow —
+submits to the server API route `POST /api/leads` (`src/app/api/leads/route.ts`,
+backed by `src/lib/leads.ts`). Submissions are validated, spam-filtered via a
+honeypot, and then **always logged** to the server console (visible in Vercel's
+runtime logs), so a lead is never silently dropped — even with zero
+configuration.
+
+To send leads somewhere actionable, set any of these environment variables
+(see `.env.example`; all optional, and you can combine them):
+
+| Variable | Effect |
+| --- | --- |
+| `LEAD_WEBHOOK_URL` | POST the full JSON lead to any HTTPS endpoint (Zapier/Make/your API) |
+| `LEAD_SLACK_WEBHOOK_URL` | Post a readable summary to a Slack channel |
+| `RESEND_API_KEY` + `LEAD_NOTIFY_EMAIL` | Email each lead via [Resend](https://resend.com) (`LEAD_FROM_EMAIL` optional) |
+| `LEAD_STORE_FILE` | Append newline-delimited JSON to a file (local dev / self-host; skipped on Vercel) |
+
+On Vercel, add these under **Settings → Environment Variables**. Locally, copy
+`.env.example` to `.env.local`.
+
 ## Deployment (Vercel + offeronly.com)
 
 OfferOnly is hosted as a full Next.js app on **Vercel**, served at
@@ -104,6 +126,7 @@ Verify with `dig offeronly.com +short` (expect `76.76.21.21`) once propagated.
 
 ## Roadmap
 
-The public website comes first. Real form storage, vehicle intake, the buyer
-network, the buyer-routing algorithm, dashboards, offers, marketplace search,
-and external syndication come in later phases.
+Lead capture is now wired (forms POST to `/api/leads` with pluggable delivery
+sinks). Still ahead: durable lead storage in a database, full vehicle intake,
+the buyer network, the production buyer-routing algorithm, dashboards, offers,
+marketplace search, and external syndication.

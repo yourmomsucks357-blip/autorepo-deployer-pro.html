@@ -104,6 +104,7 @@ export default function InsurancePage() {
               <div className="mt-6">
                 <LeadForm
                   formName="Insurance / Company Inquiry"
+                  leadType="insurance"
                   groups={groups}
                   submitLabel="Submit Inquiry"
                   successTitle="Thanks — we'll be in touch."

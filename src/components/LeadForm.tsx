@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { CheckIcon } from "@/components/icons";
 
+export type LeadType = "sell" | "buyer" | "insurance" | "contact" | "snap";
+
 export type FieldType =
   | "text"
   | "email"
@@ -35,12 +37,14 @@ const inputClass =
 
 export function LeadForm({
   formName,
+  leadType,
   groups,
   submitLabel = "Submit",
   successTitle = "Thank you — we received your submission.",
   successBody = "Our team will review the details and follow up with next steps.",
 }: {
   formName: string;
+  leadType: LeadType;
   groups: FieldGroup[];
   submitLabel?: string;
   successTitle?: string;
@@ -53,6 +57,8 @@ export function LeadForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function validate(formData: FormData) {
     const next: Record<string, string> = {};
@@ -76,7 +82,7 @@ export function LeadForm({
     return next;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const nextErrors = validate(formData);
@@ -89,13 +95,51 @@ export function LeadForm({
       });
       return;
     }
-    // Phase 1: no backend. Capture intent locally and confirm to the user.
-    // A later phase wires this to lead storage + notifications.
-    if (typeof window !== "undefined") {
-      console.info(`[OfferOnly] ${formName} submission`, Object.fromEntries(formData));
+
+    const fields: Record<string, string | string[]> = {};
+    for (const f of allFields) {
+      if (f.type === "checkboxes") {
+        const values = formData.getAll(f.name).map(String);
+        if (values.length) fields[f.name] = values;
+      } else {
+        const value = (formData.get(f.name) as string | null)?.trim();
+        if (value) fields[f.name] = value;
+      }
     }
-    setSubmitted(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const honeypot = String(formData.get("company_url") ?? "");
+
+    setStatus("submitting");
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: leadType,
+          formName,
+          fields,
+          honeypot,
+          meta: {
+            path: typeof window !== "undefined" ? window.location.pathname : undefined,
+          },
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Something went wrong. Please try again.");
+      }
+      setSubmitted(true);
+      setStatus("idle");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setStatus("error");
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
   }
 
   if (submitted) {
@@ -112,7 +156,11 @@ export function LeadForm({
         <p className="mx-auto mt-2 max-w-md text-muted">{successBody}</p>
         <button
           type="button"
-          onClick={() => setSubmitted(false)}
+          onClick={() => {
+            setSubmitted(false);
+            setStatus("idle");
+            setSubmitError(null);
+          }}
           className="mt-6 text-sm font-semibold text-brand-700 hover:text-brand-600"
         >
           Submit another &rarr;
@@ -148,12 +196,26 @@ export function LeadForm({
         ))}
       </div>
 
+      {/* Honeypot — hidden from users, bots tend to fill it. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+        <label>
+          Company URL
+          <input type="text" name="company_url" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
+
       <button
         type="submit"
-        className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 sm:w-auto"
+        disabled={status === "submitting"}
+        className="mt-8 inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
-        {submitLabel}
+        {status === "submitting" ? "Submitting…" : submitLabel}
       </button>
+      {submitError ? (
+        <p role="alert" className="mt-3 text-sm font-medium text-red-600">
+          {submitError}
+        </p>
+      ) : null}
       <p className="mt-3 text-xs text-muted">
         By submitting, you agree to be contacted about this vehicle opportunity.
       </p>

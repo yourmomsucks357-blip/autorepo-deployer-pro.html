@@ -56,6 +56,8 @@ export function SnapFlow() {
   const [result, setResult] = useState<ScoreResult | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [contact, setContact] = useState({ name: "", phone: "", email: "" });
+  const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Clean up object URLs on unmount.
@@ -106,17 +108,59 @@ export function SnapFlow() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function submit() {
-    if (typeof window !== "undefined") {
-      console.info("[OfferOnly] Snap Before You Scrap submission", {
-        ...details,
-        photoCount: photos.length,
-        contact,
-        result,
-      });
+  async function submit() {
+    if (!contact.name.trim() || (!contact.phone.trim() && !contact.email.trim())) {
+      setStatus("error");
+      setSubmitError("Add your name and a phone number or email so we can reach you.");
+      return;
     }
-    setSubmitted(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const fields: Record<string, string> = {
+      ...details,
+      photoCount: String(photos.length),
+      name: contact.name.trim(),
+      phone: contact.phone.trim(),
+      email: contact.email.trim(),
+    };
+
+    setStatus("submitting");
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "snap",
+          formName: "Snap Before You Scrap",
+          fields,
+          meta: {
+            path: "/snap",
+            result: result
+              ? {
+                  primary: result.primary.label,
+                  worthMoreThanScrap: result.worthMoreThanScrap,
+                  lanes: result.lanes,
+                }
+              : null,
+          },
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Something went wrong. Please try again.");
+      }
+      setStatus("idle");
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setStatus("error");
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
   }
 
   function reset() {
@@ -126,6 +170,8 @@ export function SnapFlow() {
     setResult(null);
     setContact({ name: "", phone: "", email: "" });
     setSubmitted(false);
+    setStatus("idle");
+    setSubmitError(null);
     setStep(0);
   }
 
@@ -408,11 +454,21 @@ export function SnapFlow() {
               <button type="button" onClick={() => setStep(1)} className="rounded-xl px-4 py-3 text-sm font-semibold text-ink hover:bg-surface">
                 Edit details
               </button>
-              <button type="button" onClick={submit} className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700">
-                Send to OfferOnly
-                <ArrowRightIcon className="h-4 w-4" />
+              <button
+                type="button"
+                onClick={submit}
+                disabled={status === "submitting"}
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {status === "submitting" ? "Sending…" : "Send to OfferOnly"}
+                {status === "submitting" ? null : <ArrowRightIcon className="h-4 w-4" />}
               </button>
             </div>
+            {submitError ? (
+              <p role="alert" className="mt-3 text-sm font-medium text-red-600">
+                {submitError}
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}

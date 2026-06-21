@@ -66,6 +66,7 @@ export default function ContactPage() {
 
           <LeadForm
             formName="Contact"
+            leadType="contact"
             groups={groups}
             submitLabel="Send Message"
             successTitle="Message sent."
