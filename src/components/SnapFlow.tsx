@@ -13,6 +13,7 @@ import {
   type DamageType,
 } from "@/lib/scoring";
 import { CheckIcon, ArrowRightIcon, RecycleIcon } from "@/components/icons";
+import { submitLead } from "@/lib/leadClient";
 
 type Photo = { id: string; url: string; name: string };
 
@@ -126,32 +127,21 @@ export function SnapFlow() {
     setStatus("submitting");
     setSubmitError(null);
     try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "snap",
-          formName: "Snap Before You Scrap",
-          fields,
-          meta: {
-            path: "/snap",
-            result: result
-              ? {
-                  primary: result.primary.label,
-                  worthMoreThanScrap: result.worthMoreThanScrap,
-                  lanes: result.lanes,
-                }
-              : null,
-          },
-        }),
+      await submitLead({
+        type: "snap",
+        formName: "Snap Before You Scrap",
+        fields,
+        meta: {
+          path: "/snap",
+          result: result
+            ? {
+                primary: result.primary.label,
+                worthMoreThanScrap: result.worthMoreThanScrap,
+                lanes: result.lanes,
+              }
+            : null,
+        },
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        ok?: boolean;
-        error?: string;
-      };
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Something went wrong. Please try again.");
-      }
       setStatus("idle");
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });

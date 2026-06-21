@@ -17,6 +17,7 @@ Project layout:
 
 - Stack: Next.js 16 (App Router), React 19, Tailwind CSS v4 (configured via `@theme` tokens in `src/app/globals.css` — there is no `tailwind.config.js`). Node 22 is available.
 - Standard commands (see `package.json`): `npm run dev` (dev server on port 3000), `npm run build` (production build + TypeScript typecheck), `npm run lint` (ESLint). There is no separate `tsc` script — type errors surface during `npm run build`.
+- Two build modes: `npm run build` = full Next.js app incl. the `/api/leads` route (for Node/Vercel hosting). `npm run build:static` (`scripts/build-static.mjs`, sets `STATIC_EXPORT=1`) = host-anywhere static export into `out/` for GoDaddy basic/cPanel hosting — it temporarily moves `src/app/api` aside (API routes can't be statically exported) and restores it after. In static mode forms confirm client-side via `NEXT_PUBLIC_STATIC_EXPORT` (no `/api/leads`); both paths go through `src/lib/leadClient.ts`.
 - Lint uses the flat config `eslint.config.mjs` with `eslint-config-next`. Note `react-hooks/set-state-in-effect` is enforced — do not call `setState` synchronously inside `useEffect`.
 - `next/font/google` (Geist) is fetched at build/dev time, so the first compile needs network access.
 - Phase 1 has **no backend**: lead forms (`LeadForm.tsx`) and the Snap flow validate client-side and show a success state; submissions are only logged to the browser console. Wiring real submission/storage is a later phase — do not assume an API exists.

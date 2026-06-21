@@ -71,6 +71,43 @@ To send leads somewhere actionable, set any of these environment variables
 On Vercel, add these under **Settings → Environment Variables**. Locally, copy
 `.env.example` to `.env.local`.
 
+## Host on GoDaddy (static — no Vercel, no GitHub)
+
+If `offeronly.com` is on **GoDaddy Web Hosting (cPanel)**, you can serve the site
+as plain static files — no Node server, no Vercel, no GitHub.
+
+### 1. Build the static bundle
+
+```bash
+npm run build:static
+```
+
+This writes a complete static site to `out/` (the `/api/leads` route is excluded
+from this build; forms confirm client-side via `NEXT_PUBLIC_STATIC_EXPORT`).
+
+### 2. Upload to GoDaddy
+
+1. GoDaddy **My Products → Web Hosting → Manage → cPanel Admin**.
+2. Open **File Manager → `public_html`**.
+3. Upload the **contents of `out/`** (not the `out` folder itself). Easiest: zip
+   `out/`, upload the zip into `public_html`, then **Extract** it there.
+4. Make sure `index.html` ends up directly in `public_html`.
+
+Because the export uses `trailingSlash: true`, every page is a folder with its
+own `index.html` (e.g. `/sell/index.html`), so Apache serves clean URLs with no
+extra config.
+
+### 3. Point the domain at the hosting
+
+If the domain and hosting are in the same GoDaddy account, GoDaddy usually links
+them automatically. Otherwise, in **Domain → DNS**, set the `A` record for `@` to
+the hosting IP shown in cPanel and remove the parked-page records.
+
+> Note: a static build can't run the server-side `/api/leads` pipeline, so on
+> GoDaddy static hosting forms confirm to the visitor but leads are not delivered
+> server-side. To capture them, either (a) host the full app on a Node host
+> (keeps `/api/leads`), or (b) point the forms at a static-friendly form service.
+
 ## Deployment (Vercel + offeronly.com)
 
 OfferOnly is hosted as a full Next.js app on **Vercel**, served at

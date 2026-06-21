@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { CheckIcon } from "@/components/icons";
+import { submitLead } from "@/lib/leadClient";
 
 export type LeadType = "sell" | "buyer" | "insurance" | "contact" | "snap";
 
@@ -111,26 +112,15 @@ export function LeadForm({
     setStatus("submitting");
     setSubmitError(null);
     try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: leadType,
-          formName,
-          fields,
-          honeypot,
-          meta: {
-            path: typeof window !== "undefined" ? window.location.pathname : undefined,
-          },
-        }),
+      await submitLead({
+        type: leadType,
+        formName,
+        fields,
+        honeypot,
+        meta: {
+          path: typeof window !== "undefined" ? window.location.pathname : undefined,
+        },
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        ok?: boolean;
-        error?: string;
-      };
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Something went wrong. Please try again.");
-      }
       setSubmitted(true);
       setStatus("idle");
       window.scrollTo({ top: 0, behavior: "smooth" });
