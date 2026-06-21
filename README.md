@@ -33,4 +33,6 @@ After merging to `main`:
 
 Your site will be available at:
 
-`https://<github-username>.github.io/autorepo-deployer-pro.html/`
+`https://<github-username>.github.io/<repository-name>/`
+
+The landing page (`index.html`) links straight to the app, or you can open it directly at `https://<github-username>.github.io/<repository-name>/autorepo-deployer-pro.html`.

@@ -388,10 +388,10 @@
             <div class="auth-section">
                 <h3>🔑 Authentication Setup</h3>
                 <div class="auth-tabs">
-                    <button class="auth-tab active" onclick="switchAuthTab('github')">GitHub Token</button>
-                    <button class="auth-tab" onclick="switchAuthTab('vercel')">Vercel Token</button>
-                    <button class="auth-tab" onclick="switchAuthTab('netlify')">Netlify Token</button>
-                    <button class="auth-tab" onclick="switchAuthTab('heroku')">Heroku Token</button>
+                    <button class="auth-tab active" data-auth-tab="github" onclick="switchAuthTab('github', event)">GitHub Token</button>
+                    <button class="auth-tab" data-auth-tab="vercel" onclick="switchAuthTab('vercel', event)">Vercel Token</button>
+                    <button class="auth-tab" data-auth-tab="netlify" onclick="switchAuthTab('netlify', event)">Netlify Token</button>
+                    <button class="auth-tab" data-auth-tab="heroku" onclick="switchAuthTab('heroku', event)">Heroku Token</button>
                 </div>
 
                 <div id="github-auth" class="auth-tab-content active">
@@ -434,10 +434,10 @@
             <!-- Code Input Section -->
             <div class="input-section">
                 <div class="input-tabs">
-                    <button class="tab active" onclick="switchTab('paste')">📝 Paste Code</button>
-                    <button class="tab" onclick="switchTab('upload')">📁 Upload Files</button>
-                    <button class="tab" onclick="switchTab('github')">🔗 GitHub Import</button>
-                    <button class="tab" onclick="switchTab('template')">🏗️ Templates</button>
+                    <button class="tab active" data-tab="paste" onclick="switchTab('paste', event)">📝 Paste Code</button>
+                    <button class="tab" data-tab="upload" onclick="switchTab('upload', event)">📁 Upload Files</button>
+                    <button class="tab" data-tab="github" onclick="switchTab('github', event)">🔗 GitHub Import</button>
+                    <button class="tab" data-tab="template" onclick="switchTab('template', event)">🏗️ Templates</button>
                 </div>
 
                 <div id="paste-tab" class="tab-content active">
@@ -808,20 +808,22 @@ app.listen(PORT, () => {
         };
 
         // Authentication tab switching
-        function switchAuthTab(tab) {
+        function switchAuthTab(tab, evt) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-tab-content').forEach(t => t.classList.remove('active'));
-            
-            event.target.classList.add('active');
+
+            const trigger = (evt && evt.currentTarget) || document.querySelector(`.auth-tab[data-auth-tab="${tab}"]`);
+            if (trigger) trigger.classList.add('active');
             document.getElementById(tab + '-auth').classList.add('active');
         }
 
         // Regular tab switching
-        function switchTab(tab) {
+        function switchTab(tab, evt) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            event.target.classList.add('active');
+
+            const trigger = (evt && evt.currentTarget) || document.querySelector(`.tab[data-tab="${tab}"]`);
+            if (trigger) trigger.classList.add('active');
             document.getElementById(tab + '-tab').classList.add('active');
         }
 
@@ -1022,7 +1024,7 @@ app.listen(PORT, () => {
                 readme += `### 🚀 Quick Start\n\`\`\`bash\n# Clone the repository\ngit clone https://github.com/\${GITHUB_USERNAME}/${repoName}.git\ncd ${repoName}\n\n# Install dependencies\nnpm install\n\n# Start development server\nnpm start\n\n# Build for production\nnpm run build\n\`\`\`\n\n`;
             } else if (analysis.type === 'html') {
                 readme += `## 🌐 Static Website\n\n`;
-                readme += `### 🚀 Quick Start\nOpen \\`index.html\\` in your browser or deploy to any static hosting service.\n\n`;
+                readme += `### 🚀 Quick Start\nOpen \`index.html\` in your browser or deploy to any static hosting service.\n\n`;
             }
 
             // Add deployment section
@@ -1236,7 +1238,7 @@ jobs:
                 for (const [filename, content] of Object.entries(files)) {
                     let fileContent = content;
                     if (content instanceof File) {
-                        fileContent = await file.text();
+                        fileContent = await content.text();
                     }
                     
                     const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));
