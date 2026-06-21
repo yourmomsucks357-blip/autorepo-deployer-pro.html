@@ -1,36 +1,56 @@
-# AutoRepo Deployer Pro
+# OfferOnly
 
-`autorepo-deployer-pro.html` is a standalone web app that can:
+**Vehicle Opportunities Matched to the Right Buyers.**
 
-- Create real GitHub repositories with your PAT
-- Upload template and custom files (including drag/drop)
-- Configure repository settings (issues/wiki)
-- Add GitHub Actions workflows (CI + Pages)
-- Trigger GitHub import from an existing repo URL
-- Create deployment targets for Vercel, Netlify, and Heroku (with platform tokens)
-- Detect likely project frameworks from staged files
+OfferOnly is a vehicle opportunity platform. Its purpose is to take a vehicle
+opportunity and route it to the buyer type most likely to understand its real
+value — from clean wholesale vehicles to total losses, salvage, export, parts,
+repair, repossessions, fleet vehicles, and scrap.
 
-## Usage
+This repository contains **Phase 1: the public marketing website**.
 
-1. Open `autorepo-deployer-pro.html` in your browser.
-2. Provide your tokens:
-   - GitHub PAT (`repo` scope)
-   - Optional: Vercel, Netlify, Heroku tokens
-3. Enter owner/repository settings, choose a template/license, and stage files.
-4. Click **Create Repo & Deploy**.
+## Tech stack
 
-The app shows live progress logs, deployment URLs, and next-step guidance.
+- [Next.js 16](https://nextjs.org) (App Router)
+- React 19 + TypeScript
+- Tailwind CSS v4 (configured via `@theme` in `src/app/globals.css`)
 
-## GitHub Pages deployment
+## Getting started
 
-This repository includes a GitHub Actions workflow that deploys to **GitHub Pages** on every push to `main`.
+```bash
+npm install
+npm run dev
+```
 
-After merging to `main`:
+Open [http://localhost:3000](http://localhost:3000).
 
-1. Go to **Settings → Pages**
-2. Ensure **Source** is set to **GitHub Actions**
-3. Wait for the **Deploy to GitHub Pages** workflow run to complete
+## Scripts
 
-Your site will be available at:
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the dev server (port 3000) |
+| `npm run build` | Production build + TypeScript typecheck |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
 
-`https://<github-username>.github.io/autorepo-deployer-pro.html/`
+## Pages
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Homepage — what OfferOnly does, who uses it, vehicle types, how it works |
+| `/about` | Why OfferOnly exists |
+| `/how-it-works` | Submission → classification → buyer routing |
+| `/sell` | Seller lead form (any condition / title status) |
+| `/buyers` | Buyer network signup with lane preferences |
+| `/insurance` | Insurance / total-loss disposition + company inquiry |
+| `/vehicle-types` | Every vehicle category and its likely buyers |
+| `/contact` | General contact form |
+
+SEO: each page sets unique title/description/canonical and Open Graph tags;
+`/sitemap.xml` and `/robots.txt` are generated automatically.
+
+## Roadmap
+
+The public website comes first. Real form storage, vehicle intake, the buyer
+network, the buyer-routing algorithm, dashboards, offers, marketplace search,
+and external syndication come in later phases.
